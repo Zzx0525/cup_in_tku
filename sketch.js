@@ -94,7 +94,6 @@ window.addEventListener("DOMContentLoaded", () => {
     setSelectedMatch(null);
   });
 
-  // 左右滑動按鈕
   const holder = document.getElementById("timeline-canvas-holder");
   document.getElementById("scroll-left-btn").addEventListener("click", () => {
     holder.scrollBy({ left: -280, behavior: "smooth" });
@@ -221,7 +220,7 @@ function initTimelineSketch() {
   timelineSketch = new p5((p) => {
     const START_HOUR = 7;
     const END_HOUR = 21;
-    const TIMELINE_CANVAS_WIDTH = 1280; // 寬幅時間軸，方便左右滑動查看
+    const TIMELINE_CANVAS_WIDTH = 1280;
     const RIGHT_MARGIN = 24;
     const TOP_MARGIN = 36;
     const LANE_H = 30;
@@ -294,10 +293,11 @@ function initTimelineSketch() {
     }
 
     p.setup = () => {
-      p.pixelDensity(1);
+      // 使用最高 2x 的裝置像素比，解決時間軸模糊不清的問題
+      p.pixelDensity(Math.min(window.devicePixelRatio || 1, 2));
       const cnv = p.createCanvas(TIMELINE_CANVAS_WIDTH, 220);
       cnv.parent("timeline-canvas-holder");
-      p.textFont("sans-serif");
+      p.textFont("-apple-system, BlinkMacSystemFont, 'Noto Sans TC', sans-serif");
     };
 
     p.windowResized = () => {
@@ -347,39 +347,45 @@ function initTimelineSketch() {
       p.line(0, 6, p.width, 6);
 
       for (let hr = START_HOUR; hr <= END_HOUR; hr++) {
-        const x = leftMargin + ((hr - START_HOUR) / (END_HOUR - START_HOUR)) * plotW;
+        const x = Math.round(leftMargin + ((hr - START_HOUR) / (END_HOUR - START_HOUR)) * plotW);
         p.stroke(COLORS.gridLine);
         p.line(x, TOP_MARGIN - 6, x, totalGridBottom);
 
         p.noStroke();
         p.fill(COLORS.axisText);
-        p.textSize(11.5);
+        p.textSize(12);
         p.textAlign(p.CENTER, p.BOTTOM);
         p.text(`${String(hr).padStart(2, "0")}:00`, x, TOP_MARGIN - 10);
       }
 
       venueRows.forEach((row) => {
-        const yBottom = row.yTop + row.height;
+        const yBottom = Math.round(row.yTop + row.height);
 
         p.stroke(COLORS.gridLine);
         p.line(leftMargin, yBottom, p.width - RIGHT_MARGIN, yBottom);
 
         p.noStroke();
         p.fill(COLORS.labelText);
-        p.textSize(isMobileScreen() ? 12 : 13);
+        p.textSize(isMobileScreen() ? 12.5 : 13.5);
+        p.textStyle(p.BOLD);
         p.textAlign(p.RIGHT, p.CENTER);
-        p.text(row.name.replace(" ", ""), leftMargin - 12, row.yTop + row.height / 2);
+        p.text(row.name.replace(" ", ""), leftMargin - 12, Math.round(row.yTop + row.height / 2));
+        p.textStyle(p.NORMAL);
 
         row.blocks.forEach((blk) => {
-          const y = row.yTop + ROW_PAD / 2 + blk.lane * (LANE_H + LANE_GAP);
+          const bx = Math.round(blk.x);
+          const by = Math.round(row.yTop + ROW_PAD / 2 + blk.lane * (LANE_H + LANE_GAP));
+          const bw = Math.round(blk.w);
+          const bh = blk.h;
+
           const isSelected = state.selectedMatch === blk.match;
           const isHover =
-            p.mouseX >= blk.x &&
-            p.mouseX <= blk.x + blk.w &&
-            p.mouseY >= y &&
-            p.mouseY <= y + blk.h;
+            p.mouseX >= bx &&
+            p.mouseX <= bx + bw &&
+            p.mouseY >= by &&
+            p.mouseY <= by + bh;
 
-          hitBoxes.push({ match: blk.match, x: blk.x, y, w: blk.w, h: blk.h });
+          hitBoxes.push({ match: blk.match, x: bx, y: by, w: bw, h: bh });
 
           const fillHex = COLORS[blk.match.type] || COLORS.prelim;
           if (isSelected || isHover) {
@@ -389,16 +395,16 @@ function initTimelineSketch() {
             p.noStroke();
           }
           p.fill(fillHex);
-          p.rect(blk.x, y, blk.w, blk.h, 6);
+          p.rect(bx, by, bw, bh, 6);
 
           p.noStroke();
           p.fill("#ffffff");
-          p.textSize(10.5);
+          p.textSize(11);
           p.textAlign(p.CENTER, p.CENTER);
           p.text(
-            fitText(p, formatCompactLabel(blk.match), blk.w - 8),
-            blk.x + blk.w / 2,
-            y + blk.h / 2 + 0.5
+            fitText(p, formatCompactLabel(blk.match), bw - 8),
+            bx + bw / 2,
+            by + bh / 2 + 0.5
           );
         });
       });
