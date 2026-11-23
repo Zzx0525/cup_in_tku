@@ -21,7 +21,6 @@ const COLORS = {
 let filteredMatches = [];
 let allSportMatches = [];
 let timelineSketch = null;
-let listSketch = null;
 
 function isMobileScreen() {
   return window.innerWidth <= 768;
@@ -95,8 +94,17 @@ window.addEventListener("DOMContentLoaded", () => {
     setSelectedMatch(null);
   });
 
+  // 左右滑動按鈕
+  const holder = document.getElementById("timeline-canvas-holder");
+  document.getElementById("scroll-left-btn").addEventListener("click", () => {
+    holder.scrollBy({ left: -280, behavior: "smooth" });
+  });
+  document.getElementById("scroll-right-btn").addEventListener("click", () => {
+    holder.scrollBy({ left: 280, behavior: "smooth" });
+  });
+
   populateDropdowns();
-  initSketches();
+  initTimelineSketch();
   applyFilters();
 });
 
@@ -149,18 +157,72 @@ function applyFilters() {
   document.getElementById("list-counter").textContent =
     `顯示 ${filteredMatches.length} / ${allSportMatches.length} 筆`;
 
-  if (timelineSketch) timelineSketch.updateLayout();
-  if (listSketch) listSketch.updateLayout();
+  renderScheduleList();
+  if (timelineSketch) {
+    timelineSketch.updateLayout();
+  }
 }
 
-function initSketches() {
-  // ==========================================
-  // 畫布 1：無重疊簡潔時間軸（手機版支援橫向平滑滑動）
-  // ==========================================
+function renderScheduleList() {
+  const container = document.getElementById("schedule-list");
+  container.innerHTML = "";
+
+  if (filteredMatches.length === 0) {
+    container.innerHTML = `<div class="empty-schedule">查無符合條件的賽程資料</div>`;
+    return;
+  }
+
+  let currentStage = null;
+  let currentRowsWrapper = null;
+
+  filteredMatches.forEach((m) => {
+    if (m.stage !== currentStage) {
+      currentStage = m.stage;
+      const titleEl = document.createElement("div");
+      titleEl.className = "stage-group-title";
+      titleEl.textContent = currentStage;
+      container.appendChild(titleEl);
+
+      currentRowsWrapper = document.createElement("div");
+      currentRowsWrapper.className = "stage-rows";
+      container.appendChild(currentRowsWrapper);
+    }
+
+    const row = document.createElement("div");
+    row.className = `match-row ${m.type || "prelim"}`;
+
+    const badges = document.createElement("div");
+    badges.className = "match-badges";
+    badges.innerHTML = `
+      <span class="badge-time">${escapeHtml(m.time)}</span>
+      <span class="badge-venue">${escapeHtml(m.venue)}</span>
+      <span class="badge-date">${escapeHtml(m.date)}</span>
+    `;
+
+    const teams = document.createElement("div");
+    teams.className = "match-teams";
+    teams.textContent = formatFullTitle(m);
+
+    row.appendChild(badges);
+    row.appendChild(teams);
+    currentRowsWrapper.appendChild(row);
+  });
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function initTimelineSketch() {
   timelineSketch = new p5((p) => {
     const START_HOUR = 7;
     const END_HOUR = 21;
-    const RIGHT_MARGIN = 20;
+    const TIMELINE_CANVAS_WIDTH = 1280; // 寬幅時間軸，方便左右滑動查看
+    const RIGHT_MARGIN = 24;
     const TOP_MARGIN = 36;
     const LANE_H = 30;
     const LANE_GAP = 5;
@@ -191,7 +253,7 @@ function initSketches() {
 
           const x = leftMargin + (startMin / totalMinutes) * plotW;
           const rawW = (m.duration / totalMinutes) * plotW;
-          const pillW = Math.max(66, Math.min(rawW, plotW * 0.14));
+          const pillW = Math.max(76, Math.min(rawW, plotW * 0.13));
 
           let assignedLane = -1;
           for (let l = 0; l < laneEndX.length; l++) {
@@ -228,13 +290,12 @@ function initSketches() {
         currentY += rowH;
       });
 
-      return { rows, totalHeight: Math.max(150, currentY + BOTTOM_MARGIN) };
+      return { rows, totalHeight: Math.max(160, currentY + BOTTOM_MARGIN) };
     }
 
     p.setup = () => {
-      const holder = document.getElementById("timeline-canvas-holder");
-      const w = Math.max(980, holder.clientWidth || 1100);
-      const cnv = p.createCanvas(w, 200);
+      p.pixelDensity(1);
+      const cnv = p.createCanvas(TIMELINE_CANVAS_WIDTH, 220);
       cnv.parent("timeline-canvas-holder");
       p.textFont("sans-serif");
     };
@@ -244,21 +305,21 @@ function initSketches() {
     };
 
     p.updateLayout = () => {
-      const holder = document.getElementById("timeline-canvas-holder");
-      const mobile = isMobileScreen();
-      leftMargin = mobile ? 86 : 105;
-      // 手機版維持足夠的時間軸寬度（980px）讓使用者橫向滑動，不會壓扁文字
-      const w = Math.max(980, holder.clientWidth || 1100);
-
+      leftMargin = isMobileScreen() ? 92 : 105;
       venues =
         state.venue === "ALL"
           ? Array.from(new Set(allSportMatches.map((m) => m.venue)))
           : [state.venue];
 
-      const plotW = Math.max(700, w - leftMargin - RIGHT_MARGIN);
+      const plotW = TIMELINE_CANVAS_WIDTH - leftMargin - RIGHT_MARGIN;
       const layout = computeVenueRows(plotW);
       venueRows = layout.rows;
-      p.resizeCanvas(w, layout.totalHeight);
+
+      p.resizeCanvas(TIMELINE_CANVAS_WIDTH, layout.totalHeight);
+      if (p.canvas) {
+        p.canvas.style.width = `${TIMELINE_CANVAS_WIDTH}px`;
+        p.canvas.style.height = `${layout.totalHeight}px`;
+      }
     };
 
     p.mousePressed = () => {
@@ -275,7 +336,7 @@ function initSketches() {
       p.background("#ffffff");
       hitBoxes = [];
 
-      const plotW = Math.max(700, p.width - leftMargin - RIGHT_MARGIN);
+      const plotW = p.width - leftMargin - RIGHT_MARGIN;
       const totalGridBottom =
         venueRows.length > 0
           ? venueRows[venueRows.length - 1].yTop + venueRows[venueRows.length - 1].height
@@ -344,161 +405,6 @@ function initSketches() {
     };
 
     function fitText(pInst, str, maxW) {
-      if (pInst.textWidth(str) <= maxW) return str;
-      let s = str;
-      while (s.length > 1 && pInst.textWidth(s + "…") > maxW) {
-        s = s.slice(0, -1);
-      }
-      return s + "…";
-    }
-  });
-
-  // ==========================================
-  // 畫布 2：完整賽程列表（手機版自動改為雙行卡片排版）
-  // ==========================================
-  listSketch = new p5((p) => {
-    const GROUP_HEADER_H = 38;
-    const GAP = 8;
-    let layoutItems = [];
-    let mobileMode = false;
-
-    function getRowHeight() {
-      return mobileMode ? 76 : 52;
-    }
-
-    p.setup = () => {
-      const holder = document.getElementById("list-canvas-holder");
-      const w = holder.clientWidth || 1100;
-      const cnv = p.createCanvas(w, 200);
-      cnv.parent("list-canvas-holder");
-      p.textFont("sans-serif");
-    };
-
-    p.windowResized = () => {
-      p.updateLayout();
-    };
-
-    p.updateLayout = () => {
-      const holder = document.getElementById("list-canvas-holder");
-      const w = holder.clientWidth || 1100;
-      mobileMode = w < 640 || isMobileScreen();
-      const rowH = getRowHeight();
-
-      layoutItems = [];
-      let y = 6;
-      let currentStage = null;
-
-      filteredMatches.forEach((m) => {
-        if (m.stage !== currentStage) {
-          currentStage = m.stage;
-          layoutItems.push({ kind: "header", title: currentStage, y });
-          y += GROUP_HEADER_H;
-        }
-        layoutItems.push({ kind: "row", match: m, y, h: rowH });
-        y += rowH + GAP;
-      });
-
-      const totalH = filteredMatches.length === 0 ? 110 : y + 6;
-      p.resizeCanvas(w, totalH);
-    };
-
-    p.draw = () => {
-      p.background("#ffffff");
-
-      if (filteredMatches.length === 0) {
-        p.noStroke();
-        p.fill("#6b7c8f");
-        p.textSize(14);
-        p.textAlign(p.CENTER, p.CENTER);
-        p.text("查無符合條件的賽程資料", p.width / 2, p.height / 2);
-        return;
-      }
-
-      layoutItems.forEach((item) => {
-        if (item.kind === "header") {
-          p.noStroke();
-          p.fill("#16689c");
-          p.textSize(14);
-          p.textStyle(p.BOLD);
-          p.textAlign(p.LEFT, p.CENTER);
-          p.text(item.title, 4, item.y + GROUP_HEADER_H / 2);
-          p.textStyle(p.NORMAL);
-          return;
-        }
-
-        const m = item.match;
-        const x = 2;
-        const y = item.y;
-        const w = p.width - 4;
-        const h = item.h;
-        const hover =
-          p.mouseX >= x && p.mouseX <= x + w && p.mouseY >= y && p.mouseY <= y + h;
-
-        p.stroke(hover ? "#1976a3" : "#e2eaf1");
-        p.strokeWeight(hover ? 1.5 : 1);
-        p.fill(hover ? "#f5faff" : "#fafcfe");
-        p.rect(x, y, w, h, 10);
-
-        p.noStroke();
-        p.fill(COLORS[m.type] || COLORS.prelim);
-        p.rect(x, y, 5, h, 10, 0, 0, 10);
-
-        if (mobileMode) {
-          // 手機雙行佈局：第一行「時間 + 場地 + 日期」，第二行「完整對戰隊伍」
-          p.fill("#e8f2fa");
-          p.rect(x + 14, y + 10, 58, 24, 6);
-          p.fill("#0f4c75");
-          p.textSize(12);
-          p.textStyle(p.BOLD);
-          p.textAlign(p.CENTER, p.CENTER);
-          p.text(m.time, x + 43, y + 22);
-
-          p.fill("#eef3f7");
-          p.rect(x + 80, y + 10, 96, 24, 6);
-          p.fill("#3d5166");
-          p.textStyle(p.NORMAL);
-          p.text(m.venue, x + 128, y + 22);
-
-          p.fill("#6b7c8f");
-          p.textSize(12);
-          p.textAlign(p.RIGHT, p.CENTER);
-          p.text(m.date, x + w - 14, y + 22);
-
-          // 第二行：對戰隊伍（完整寬度）
-          p.fill("#162436");
-          p.textSize(14);
-          p.textStyle(p.BOLD);
-          p.textAlign(p.LEFT, p.CENTER);
-          const fullTitle = formatFullTitle(m);
-          p.text(fitListText(p, fullTitle, w - 28), x + 14, y + 54);
-          p.textStyle(p.NORMAL);
-        } else {
-          // 桌面單行佈局
-          p.fill("#e8f2fa");
-          p.rect(x + 18, y + 12, 66, 28, 7);
-          p.fill("#0f4c75");
-          p.textSize(13);
-          p.textStyle(p.BOLD);
-          p.textAlign(p.CENTER, p.CENTER);
-          p.text(m.time, x + 51, y + 26);
-
-          p.fill("#eef3f7");
-          p.rect(x + 96, y + 12, 108, 28, 7);
-          p.fill("#3d5166");
-          p.textStyle(p.NORMAL);
-          p.text(m.venue, x + 150, y + 26);
-
-          p.fill("#162436");
-          p.textSize(15);
-          p.textStyle(p.BOLD);
-          p.textAlign(p.LEFT, p.CENTER);
-          p.text(fitListText(p, formatFullTitle(m), w - 240), x + 222, y + 26);
-          p.textStyle(p.NORMAL);
-        }
-      });
-    };
-
-    function fitListText(pInst, str, maxW) {
       if (pInst.textWidth(str) <= maxW) return str;
       let s = str;
       while (s.length > 1 && pInst.textWidth(s + "…") > maxW) {

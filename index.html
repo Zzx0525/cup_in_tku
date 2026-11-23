@@ -175,7 +175,7 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .panel-title {
       margin: 0 0 4px;
@@ -211,15 +211,52 @@
     .dot.final  { background-color: #d97336; }
     .dot.rest   { background-color: #9aa5b1; }
 
-    .mobile-scroll-hint {
-      display: none;
-      font-size: 12px;
-      color: #16689c;
-      background: #eef6fc;
-      border: 1px solid #cfe3f5;
-      padding: 6px 12px;
-      border-radius: 8px;
+    /* 時間軸左右滑動控制列 */
+    .timeline-scroll-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
       margin-bottom: 10px;
+      padding: 6px 10px;
+      background-color: #f4f8fb;
+      border: 1px solid #e2eaf1;
+      border-radius: 9px;
+      font-size: 12px;
+      color: #4a6078;
+    }
+    .scroll-btns {
+      display: inline-flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .scroll-btn {
+      border: 1px solid #c5d6e6;
+      background-color: #ffffff;
+      color: #165b8c;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .scroll-btn:hover {
+      background-color: #e6f0f8;
+    }
+
+    /* 時間軸捲動容器 */
+    #timeline-canvas-holder {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+      border-radius: 8px;
+      border: 1px solid #edf2f7;
+    }
+    #timeline-canvas-holder canvas {
+      display: block;
     }
 
     /* 點擊時間軸區塊後展開的完整資訊卡 */
@@ -264,14 +301,97 @@
       background: #e3effa;
     }
 
-    #timeline-canvas-holder {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      border-radius: 8px;
+    /* 完整賽程：原生 HTML 清單 */
+    .schedule-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
-    #list-canvas-holder {
-      width: 100%;
+    .stage-group-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #16689c;
+      margin: 6px 0 6px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #edf2f7;
+    }
+    .stage-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .match-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px 12px 18px;
+      background-color: #fafcfe;
+      border: 1px solid #e2eaf1;
+      border-radius: 10px;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .match-row:hover {
+      border-color: #1976a3;
+      background-color: #f5faff;
+    }
+    .match-row::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      border-radius: 10px 0 0 10px;
+      background-color: #1976a3;
+    }
+    .match-row.final::before {
+      background-color: #d97336;
+    }
+    .match-row.rest::before {
+      background-color: #9aa5b1;
+    }
+    .match-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .badge-time {
+      background-color: #e8f2fa;
+      color: #0f4c75;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 5px 10px;
+      border-radius: 7px;
+      white-space: nowrap;
+    }
+    .badge-venue {
+      background-color: #eef3f7;
+      color: #3d5166;
+      font-size: 13px;
+      padding: 5px 10px;
+      border-radius: 7px;
+      white-space: nowrap;
+    }
+    .badge-date {
+      font-size: 12px;
+      color: #6b7c8f;
+      white-space: nowrap;
+    }
+    .match-teams {
+      font-size: 15px;
+      font-weight: 700;
+      color: #162436;
+      line-height: 1.45;
+      word-break: break-word;
+      flex: 1;
+    }
+    .empty-schedule {
+      text-align: center;
+      padding: 36px 16px;
+      color: #6b7c8f;
+      font-size: 14px;
     }
 
     /* ================= 手機與平板響應式斷點 ================= */
@@ -306,7 +426,7 @@
       .filter-controls select,
       .filter-controls input {
         width: 100%;
-        font-size: 16px; /* 防止 iOS 自動縮放畫面 */
+        font-size: 16px;
       }
       .kpi-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -323,12 +443,25 @@
         padding: 16px 14px 18px;
         border-radius: 14px;
       }
-      .mobile-scroll-hint {
-        display: block;
-      }
       .detail-close {
         width: 100%;
         text-align: center;
+      }
+      .match-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 11px 12px 11px 16px;
+      }
+      .match-badges {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+      .badge-date {
+        margin-left: auto;
+      }
+      .match-teams {
+        font-size: 14px;
       }
     }
   </style>
@@ -341,7 +474,7 @@
         <h1 class="hero-title">全育盃賽程查詢</h1>
         <p class="hero-subtitle">掌握每一場賽事，找到你想看的比賽。</p>
       </div>
-      <div class="date-pill">比賽日期：12/5 - 12/6</div>
+      <div class="date-pill">比賽日期：12/5 - 12/6（羽球：12/5）</div>
     </div>
   </header>
 
@@ -386,7 +519,7 @@
       </div>
     </section>
 
-    <!-- 賽程時間軸（p5.js Canvas 1） -->
+    <!-- 賽程時間軸（p5.js Canvas） -->
     <section class="panel-card">
       <div class="panel-header">
         <div>
@@ -400,7 +533,15 @@
         </div>
       </div>
 
-      <div class="mobile-scroll-hint">↔ 左右滑動時間軸可檢視 07:00 – 21:00 全部時段</div>
+      <!-- 左右滑動提示與快捷按鈕 -->
+      <div class="timeline-scroll-bar">
+        <span>↔ 左右滑動查看完整時段（07:00 – 21:00）</span>
+        <div class="scroll-btns">
+          <button type="button" class="scroll-btn" id="scroll-left-btn">← 向左</button>
+          <button type="button" class="scroll-btn" id="scroll-right-btn">向右 →</button>
+        </div>
+      </div>
+
       <div id="timeline-canvas-holder"></div>
 
       <!-- 點擊後展開的完整資訊區 -->
@@ -413,7 +554,7 @@
       </div>
     </section>
 
-    <!-- 完整賽程（p5.js Canvas 2） -->
+    <!-- 完整賽程 -->
     <section class="panel-card">
       <div class="panel-header">
         <div>
@@ -422,7 +563,7 @@
         </div>
         <div class="panel-desc" id="list-counter">顯示 0 / 0 筆</div>
       </div>
-      <div id="list-canvas-holder"></div>
+      <div id="schedule-list" class="schedule-list-container"></div>
     </section>
   </main>
 
