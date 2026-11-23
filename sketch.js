@@ -23,6 +23,10 @@ let allSportMatches = [];
 let timelineSketch = null;
 let listSketch = null;
 
+function isMobileScreen() {
+  return window.innerWidth <= 768;
+}
+
 function timeToMinutes(t) {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
@@ -151,12 +155,11 @@ function applyFilters() {
 
 function initSketches() {
   // ==========================================
-  // 畫布 1：無重疊簡潔時間軸
+  // 畫布 1：無重疊簡潔時間軸（手機版支援橫向平滑滑動）
   // ==========================================
   timelineSketch = new p5((p) => {
     const START_HOUR = 7;
-    const END_HOUR = 18;
-    const LEFT_MARGIN = 105;
+    const END_HOUR = 21;
     const RIGHT_MARGIN = 20;
     const TOP_MARGIN = 36;
     const LANE_H = 30;
@@ -164,8 +167,9 @@ function initSketches() {
     const ROW_PAD = 18;
     const BOTTOM_MARGIN = 20;
 
+    let leftMargin = 105;
     let venues = [];
-    let venueRows = []; // { name, yTop, height, blocks }
+    let venueRows = [];
     let hitBoxes = [];
 
     function computeVenueRows(plotW) {
@@ -178,19 +182,17 @@ function initSketches() {
           .filter((m) => m.venue === venueName)
           .sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
 
-        // 計算每個區塊的 x 與寬度，並指派不重疊的 lane（層）
-        const laneEndX = []; // 每層目前佔用到的最右邊 x 座標
+        const laneEndX = [];
         const blocks = [];
 
         items.forEach((m) => {
           const startMin = timeToMinutes(m.time) - START_HOUR * 60;
           if (startMin < 0 || startMin > totalMinutes) return;
 
-          const x = LEFT_MARGIN + (startMin / totalMinutes) * plotW;
+          const x = leftMargin + (startMin / totalMinutes) * plotW;
           const rawW = (m.duration / totalMinutes) * plotW;
           const pillW = Math.max(66, Math.min(rawW, plotW * 0.14));
 
-          // 找第一個不會與現有區塊重疊的 lane（留 4px 間距）
           let assignedLane = -1;
           for (let l = 0; l < laneEndX.length; l++) {
             if (x >= laneEndX[l] + 4) {
@@ -231,7 +233,7 @@ function initSketches() {
 
     p.setup = () => {
       const holder = document.getElementById("timeline-canvas-holder");
-      const w = holder.clientWidth || 1100;
+      const w = Math.max(980, holder.clientWidth || 1100);
       const cnv = p.createCanvas(w, 200);
       cnv.parent("timeline-canvas-holder");
       p.textFont("sans-serif");
@@ -243,13 +245,17 @@ function initSketches() {
 
     p.updateLayout = () => {
       const holder = document.getElementById("timeline-canvas-holder");
-      const w = holder.clientWidth || 1100;
+      const mobile = isMobileScreen();
+      leftMargin = mobile ? 86 : 105;
+      // 手機版維持足夠的時間軸寬度（980px）讓使用者橫向滑動，不會壓扁文字
+      const w = Math.max(980, holder.clientWidth || 1100);
+
       venues =
         state.venue === "ALL"
           ? Array.from(new Set(allSportMatches.map((m) => m.venue)))
           : [state.venue];
 
-      const plotW = Math.max(400, w - LEFT_MARGIN - RIGHT_MARGIN);
+      const plotW = Math.max(700, w - leftMargin - RIGHT_MARGIN);
       const layout = computeVenueRows(plotW);
       venueRows = layout.rows;
       p.resizeCanvas(w, layout.totalHeight);
@@ -269,7 +275,7 @@ function initSketches() {
       p.background("#ffffff");
       hitBoxes = [];
 
-      const plotW = Math.max(400, p.width - LEFT_MARGIN - RIGHT_MARGIN);
+      const plotW = Math.max(700, p.width - leftMargin - RIGHT_MARGIN);
       const totalGridBottom =
         venueRows.length > 0
           ? venueRows[venueRows.length - 1].yTop + venueRows[venueRows.length - 1].height
@@ -279,9 +285,8 @@ function initSketches() {
       p.strokeWeight(1);
       p.line(0, 6, p.width, 6);
 
-      // 整點刻度線 (07:00 ~ 18:00)
       for (let hr = START_HOUR; hr <= END_HOUR; hr++) {
-        const x = LEFT_MARGIN + ((hr - START_HOUR) / (END_HOUR - START_HOUR)) * plotW;
+        const x = leftMargin + ((hr - START_HOUR) / (END_HOUR - START_HOUR)) * plotW;
         p.stroke(COLORS.gridLine);
         p.line(x, TOP_MARGIN - 6, x, totalGridBottom);
 
@@ -292,18 +297,17 @@ function initSketches() {
         p.text(`${String(hr).padStart(2, "0")}:00`, x, TOP_MARGIN - 10);
       }
 
-      // 場地列與各層區塊
       venueRows.forEach((row) => {
         const yBottom = row.yTop + row.height;
 
         p.stroke(COLORS.gridLine);
-        p.line(LEFT_MARGIN, yBottom, p.width - RIGHT_MARGIN, yBottom);
+        p.line(leftMargin, yBottom, p.width - RIGHT_MARGIN, yBottom);
 
         p.noStroke();
         p.fill(COLORS.labelText);
-        p.textSize(13);
+        p.textSize(isMobileScreen() ? 12 : 13);
         p.textAlign(p.RIGHT, p.CENTER);
-        p.text(row.name.replace(" ", ""), LEFT_MARGIN - 14, row.yTop + row.height / 2);
+        p.text(row.name.replace(" ", ""), leftMargin - 12, row.yTop + row.height / 2);
 
         row.blocks.forEach((blk) => {
           const y = row.yTop + ROW_PAD / 2 + blk.lane * (LANE_H + LANE_GAP);
@@ -350,13 +354,17 @@ function initSketches() {
   });
 
   // ==========================================
-  // 畫布 2：完整賽程列表
+  // 畫布 2：完整賽程列表（手機版自動改為雙行卡片排版）
   // ==========================================
   listSketch = new p5((p) => {
-    const ROW_H = 52;
     const GROUP_HEADER_H = 38;
     const GAP = 8;
     let layoutItems = [];
+    let mobileMode = false;
+
+    function getRowHeight() {
+      return mobileMode ? 76 : 52;
+    }
 
     p.setup = () => {
       const holder = document.getElementById("list-canvas-holder");
@@ -373,6 +381,8 @@ function initSketches() {
     p.updateLayout = () => {
       const holder = document.getElementById("list-canvas-holder");
       const w = holder.clientWidth || 1100;
+      mobileMode = w < 640 || isMobileScreen();
+      const rowH = getRowHeight();
 
       layoutItems = [];
       let y = 6;
@@ -384,8 +394,8 @@ function initSketches() {
           layoutItems.push({ kind: "header", title: currentStage, y });
           y += GROUP_HEADER_H;
         }
-        layoutItems.push({ kind: "row", match: m, y });
-        y += ROW_H + GAP;
+        layoutItems.push({ kind: "row", match: m, y, h: rowH });
+        y += rowH + GAP;
       });
 
       const totalH = filteredMatches.length === 0 ? 110 : y + 6;
@@ -420,7 +430,7 @@ function initSketches() {
         const x = 2;
         const y = item.y;
         const w = p.width - 4;
-        const h = ROW_H;
+        const h = item.h;
         const hover =
           p.mouseX >= x && p.mouseX <= x + w && p.mouseY >= y && p.mouseY <= y + h;
 
@@ -433,27 +443,68 @@ function initSketches() {
         p.fill(COLORS[m.type] || COLORS.prelim);
         p.rect(x, y, 5, h, 10, 0, 0, 10);
 
-        p.fill("#e8f2fa");
-        p.rect(x + 18, y + 12, 66, 28, 7);
-        p.fill("#0f4c75");
-        p.textSize(13);
-        p.textStyle(p.BOLD);
-        p.textAlign(p.CENTER, p.CENTER);
-        p.text(m.time, x + 51, y + 26);
+        if (mobileMode) {
+          // 手機雙行佈局：第一行「時間 + 場地 + 日期」，第二行「完整對戰隊伍」
+          p.fill("#e8f2fa");
+          p.rect(x + 14, y + 10, 58, 24, 6);
+          p.fill("#0f4c75");
+          p.textSize(12);
+          p.textStyle(p.BOLD);
+          p.textAlign(p.CENTER, p.CENTER);
+          p.text(m.time, x + 43, y + 22);
 
-        p.fill("#eef3f7");
-        p.rect(x + 96, y + 12, 92, 28, 7);
-        p.fill("#3d5166");
-        p.textStyle(p.NORMAL);
-        p.text(m.venue, x + 142, y + 26);
+          p.fill("#eef3f7");
+          p.rect(x + 80, y + 10, 96, 24, 6);
+          p.fill("#3d5166");
+          p.textStyle(p.NORMAL);
+          p.text(m.venue, x + 128, y + 22);
 
-        p.fill("#162436");
-        p.textSize(15);
-        p.textStyle(p.BOLD);
-        p.textAlign(p.LEFT, p.CENTER);
-        p.text(formatFullTitle(m), x + 206, y + 26);
-        p.textStyle(p.NORMAL);
+          p.fill("#6b7c8f");
+          p.textSize(12);
+          p.textAlign(p.RIGHT, p.CENTER);
+          p.text(m.date, x + w - 14, y + 22);
+
+          // 第二行：對戰隊伍（完整寬度）
+          p.fill("#162436");
+          p.textSize(14);
+          p.textStyle(p.BOLD);
+          p.textAlign(p.LEFT, p.CENTER);
+          const fullTitle = formatFullTitle(m);
+          p.text(fitListText(p, fullTitle, w - 28), x + 14, y + 54);
+          p.textStyle(p.NORMAL);
+        } else {
+          // 桌面單行佈局
+          p.fill("#e8f2fa");
+          p.rect(x + 18, y + 12, 66, 28, 7);
+          p.fill("#0f4c75");
+          p.textSize(13);
+          p.textStyle(p.BOLD);
+          p.textAlign(p.CENTER, p.CENTER);
+          p.text(m.time, x + 51, y + 26);
+
+          p.fill("#eef3f7");
+          p.rect(x + 96, y + 12, 108, 28, 7);
+          p.fill("#3d5166");
+          p.textStyle(p.NORMAL);
+          p.text(m.venue, x + 150, y + 26);
+
+          p.fill("#162436");
+          p.textSize(15);
+          p.textStyle(p.BOLD);
+          p.textAlign(p.LEFT, p.CENTER);
+          p.text(fitListText(p, formatFullTitle(m), w - 240), x + 222, y + 26);
+          p.textStyle(p.NORMAL);
+        }
       });
     };
+
+    function fitListText(pInst, str, maxW) {
+      if (pInst.textWidth(str) <= maxW) return str;
+      let s = str;
+      while (s.length > 1 && pInst.textWidth(s + "…") > maxW) {
+        s = s.slice(0, -1);
+      }
+      return s + "…";
+    }
   });
 }

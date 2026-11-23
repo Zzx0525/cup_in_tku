@@ -9,19 +9,24 @@
     * {
       box-sizing: border-box;
     }
-    body {
+    html, body {
       margin: 0;
-      padding: 0 0 60px;
+      padding: 0;
+      overflow-x: hidden;
       background-color: #f3f7fa;
       color: #162436;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      padding-bottom: 56px;
     }
 
     /* 頂部深藍橫幅 */
     .hero-banner {
       background: linear-gradient(125deg, #0b2538 0%, #103752 60%, #144463 100%);
       color: #ffffff;
-      padding: 32px 24px 36px;
+      padding: 28px 20px 32px;
       border-bottom: 1px solid #1e4e6e;
     }
     .hero-inner {
@@ -31,18 +36,18 @@
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: flex-end;
-      gap: 16px;
+      gap: 14px;
     }
     .hero-kicker {
-      font-size: 12px;
-      letter-spacing: 2px;
+      font-size: 11px;
+      letter-spacing: 1.8px;
       color: #93b4cc;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-weight: 600;
     }
     .hero-title {
-      margin: 0 0 8px;
-      font-size: 36px;
+      margin: 0 0 6px;
+      font-size: clamp(26px, 5vw, 36px);
       font-weight: 800;
       letter-spacing: 1px;
     }
@@ -53,18 +58,19 @@
     }
     .date-pill {
       border: 1px solid rgba(168, 203, 228, 0.35);
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.08);
       color: #dcebf7;
-      padding: 9px 18px;
+      padding: 8px 16px;
       border-radius: 999px;
       font-size: 13px;
+      white-space: nowrap;
     }
 
     /* 主內容區 */
     .container {
       max-width: 1240px;
       margin: 0 auto;
-      padding: 22px 24px 0;
+      padding: 18px 20px 0;
     }
 
     /* 控制列 */
@@ -73,13 +79,13 @@
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
     .sport-tabs {
       display: inline-flex;
       background-color: #e4ebf1;
-      padding: 5px;
+      padding: 4px;
       border-radius: 12px;
       gap: 4px;
     }
@@ -89,7 +95,7 @@
       color: #4a5d70;
       font-size: 14px;
       font-weight: 600;
-      padding: 8px 20px;
+      padding: 9px 20px;
       border-radius: 9px;
       cursor: pointer;
       transition: all 0.15s ease;
@@ -111,7 +117,7 @@
     }
     .filter-controls select,
     .filter-controls input {
-      height: 40px;
+      height: 42px;
       padding: 0 14px;
       border: 1px solid #d5dfe8;
       border-radius: 10px;
@@ -133,28 +139,23 @@
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    @media (max-width: 720px) {
-      .kpi-grid {
-        grid-template-columns: 1fr;
-      }
+      gap: 14px;
+      margin-bottom: 18px;
     }
     .kpi-card {
       background: #ffffff;
       border: 1px solid #dce4ec;
       border-radius: 14px;
-      padding: 18px 22px;
+      padding: 16px 20px;
       box-shadow: 0 2px 8px rgba(16, 42, 67, 0.03);
     }
     .kpi-label {
-      font-size: 13px;
+      font-size: 12px;
       color: #6b7c8f;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .kpi-value {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 800;
       color: #162436;
     }
@@ -164,16 +165,16 @@
       background: #ffffff;
       border: 1px solid #dce4ec;
       border-radius: 16px;
-      padding: 22px 24px 24px;
-      margin-bottom: 20px;
+      padding: 20px 20px 22px;
+      margin-bottom: 18px;
       box-shadow: 0 3px 12px rgba(16, 42, 67, 0.04);
     }
     .panel-header {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      align-items: flex-start;
+      gap: 10px;
       margin-bottom: 14px;
     }
     .panel-title {
@@ -186,11 +187,12 @@
       margin: 0;
       font-size: 13px;
       color: #6b7c8f;
+      line-height: 1.5;
     }
     .legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
+      gap: 14px;
       font-size: 13px;
       color: #52657a;
     }
@@ -209,11 +211,22 @@
     .dot.final  { background-color: #d97336; }
     .dot.rest   { background-color: #9aa5b1; }
 
+    .mobile-scroll-hint {
+      display: none;
+      font-size: 12px;
+      color: #16689c;
+      background: #eef6fc;
+      border: 1px solid #cfe3f5;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
     /* 點擊時間軸區塊後展開的完整資訊卡 */
     .selected-detail {
       display: none;
       margin-top: 14px;
-      padding: 14px 18px;
+      padding: 14px 16px;
       border-radius: 12px;
       background-color: #f0f6fc;
       border: 1px solid #b9d5ee;
@@ -229,17 +242,19 @@
       font-size: 13px;
       color: #3d5a78;
       margin-bottom: 4px;
+      line-height: 1.5;
     }
     .detail-title {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 700;
       color: #0d2847;
+      line-height: 1.4;
     }
     .detail-close {
       border: 1px solid #9ec2e3;
       background: #ffffff;
       color: #1256a8;
-      padding: 6px 14px;
+      padding: 7px 14px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
@@ -252,9 +267,69 @@
     #timeline-canvas-holder {
       width: 100%;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 8px;
     }
     #list-canvas-holder {
       width: 100%;
+    }
+
+    /* ================= 手機與平板響應式斷點 ================= */
+    @media (max-width: 768px) {
+      .hero-banner {
+        padding: 22px 16px 24px;
+      }
+      .date-pill {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+      .container {
+        padding: 14px 12px 0;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .sport-tabs {
+        display: flex;
+        width: 100%;
+      }
+      .sport-tab {
+        flex: 1;
+        text-align: center;
+        padding: 10px 8px;
+      }
+      .filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filter-controls select,
+      .filter-controls input {
+        width: 100%;
+        font-size: 16px; /* 防止 iOS 自動縮放畫面 */
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .kpi-card {
+        padding: 12px 10px;
+        text-align: center;
+      }
+      .kpi-value {
+        font-size: 19px;
+      }
+      .panel-card {
+        padding: 16px 14px 18px;
+        border-radius: 14px;
+      }
+      .mobile-scroll-hint {
+        display: block;
+      }
+      .detail-close {
+        width: 100%;
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -266,7 +341,7 @@
         <h1 class="hero-title">全育盃賽程查詢</h1>
         <p class="hero-subtitle">掌握每一場賽事，找到你想看的比賽。</p>
       </div>
-      <div class="date-pill">比賽日期：12/5 - 12/6（羽球：12/5）</div>
+      <div class="date-pill">比賽日期：12/5 - 12/6</div>
     </div>
   </header>
 
@@ -325,6 +400,7 @@
         </div>
       </div>
 
+      <div class="mobile-scroll-hint">↔ 左右滑動時間軸可檢視 07:00 – 21:00 全部時段</div>
       <div id="timeline-canvas-holder"></div>
 
       <!-- 點擊後展開的完整資訊區 -->
