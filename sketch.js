@@ -1,6 +1,12 @@
 // 讀取外部 scheduleData.js 的資料
 const ALL_DATA = window.SCHEDULE_DATA || [];
 
+const SPORT_LOCATION_SUMMARY = {
+  籃球: "場地：淡江大學紹謨體育館7樓（12/5~12/6）",
+  排球: "場地：12/5 真理大學體育館 ｜ 12/6 淡江大學紹謨體育館4樓",
+  羽球: "場地：淡江大學紹謨體育館4樓（12/5）"
+};
+
 const state = {
   sport: "籃球",
   stage: "ALL",
@@ -40,6 +46,14 @@ function formatCompactLabel(m) {
   return `${m.time} ${shortTitle}`;
 }
 
+function updateSportLocationBanner() {
+  const summary = SPORT_LOCATION_SUMMARY[state.sport] || "";
+  const desc = document.getElementById("timeline-location-desc");
+  if (desc) {
+    desc.textContent = `${summary}；橫向為時間，縱向為場地，點擊區塊可查看完整資訊。`;
+  }
+}
+
 function setSelectedMatch(match) {
   if (!match || state.selectedMatch === match) {
     state.selectedMatch = null;
@@ -55,7 +69,7 @@ function setSelectedMatch(match) {
 
   const m = state.selectedMatch;
   document.getElementById("detail-meta").textContent =
-    `日期：${m.date} ｜ 球類：${m.sport} ｜ 階段：${m.stage} ｜ 時間：${m.time} ｜ 場地：${m.venue}`;
+    `日期：${m.date} ｜ 場地：${m.location} ｜ 球類：${m.sport} ｜ 階段：${m.stage} ｜ 時間：${m.time} ｜ 場區：${m.venue}`;
   document.getElementById("detail-title").textContent = formatFullTitle(m);
   box.classList.add("show");
 }
@@ -70,6 +84,7 @@ window.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".sport-tab").forEach((b) => {
         b.classList.toggle("active", b.dataset.sport === state.sport);
       });
+      updateSportLocationBanner();
       populateDropdowns();
       applyFilters();
     });
@@ -102,6 +117,7 @@ window.addEventListener("DOMContentLoaded", () => {
     holder.scrollBy({ left: 280, behavior: "smooth" });
   });
 
+  updateSportLocationBanner();
   populateDropdowns();
   initTimelineSketch();
   applyFilters();
@@ -138,7 +154,7 @@ function applyFilters() {
     if (state.stage !== "ALL" && m.stage !== state.stage) return false;
     if (state.venue !== "ALL" && m.venue !== state.venue) return false;
     if (state.keyword) {
-      const text = `${m.teamA} ${m.teamB} ${m.venue} ${m.stage} ${m.time} ${m.date}`.toLowerCase();
+      const text = `${m.teamA} ${m.teamB} ${m.venue} ${m.location} ${m.stage} ${m.time} ${m.date}`.toLowerCase();
       if (!text.includes(state.keyword)) return false;
     }
     return true;
@@ -194,6 +210,7 @@ function renderScheduleList() {
     badges.className = "match-badges";
     badges.innerHTML = `
       <span class="badge-time">${escapeHtml(m.time)}</span>
+      <span class="badge-location">${escapeHtml(m.location)}</span>
       <span class="badge-venue">${escapeHtml(m.venue)}</span>
       <span class="badge-date">${escapeHtml(m.date)}</span>
     `;
@@ -293,7 +310,6 @@ function initTimelineSketch() {
     }
 
     p.setup = () => {
-      // 使用最高 2x 的裝置像素比，解決時間軸模糊不清的問題
       p.pixelDensity(Math.min(window.devicePixelRatio || 1, 2));
       const cnv = p.createCanvas(TIMELINE_CANVAS_WIDTH, 220);
       cnv.parent("timeline-canvas-holder");
