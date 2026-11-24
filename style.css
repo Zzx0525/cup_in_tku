@@ -1,8 +1,932 @@
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  background-color: #f3f7fa;
+  color: #162436;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
-canvas {
+body {
+  padding-bottom: 56px;
+}
+
+/* 頂部深藍橫幅 */
+.hero-banner {
+  background: linear-gradient(125deg, #0b2538 0%, #103752 60%, #144463 100%);
+  color: #ffffff;
+  padding: 28px 20px 32px;
+  border-bottom: 1px solid #1e4e6e;
+}
+
+.hero-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.hero-kicker {
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  color: #93b4cc;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.hero-title {
+  margin: 0 0 6px;
+  font-size: clamp(26px, 5vw, 36px);
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.hero-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #b4cde0;
+}
+
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.date-pill {
+  border: 1px solid rgba(168, 203, 228, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  color: #dcebf7;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* 主分頁導覽列 */
+.main-nav-bar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #dce4ec;
+  box-shadow: 0 2px 6px rgba(16, 42, 67, 0.03);
+}
+
+.main-nav-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.page-tab-btn {
+  border: none;
+  background: transparent;
+  color: #52657a;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 20px;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-tab-btn:hover {
+  color: #16689c;
+}
+
+.page-tab-btn.active {
+  color: #16689c;
+  border-bottom-color: #16689c;
+}
+
+/* 主內容區 */
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 18px 20px 0;
+}
+
+.page-section {
+  display: none;
+}
+
+.page-section.active {
   display: block;
+}
+
+/* 控制列 */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sport-tabs {
+  display: inline-flex;
+  background-color: #e4ebf1;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.sport-tab {
+  border: none;
+  background: transparent;
+  color: #4a5d70;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 20px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sport-tab:hover {
+  color: #156598;
+}
+
+.sport-tab.active {
+  background-color: #ffffff;
+  color: #16689c;
+  box-shadow: 0 2px 6px rgba(15, 39, 64, 0.08);
+}
+
+.date-switcher {
+  display: flex;
+  flex: 1 0 100%;
+  order: 2;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 2px;
+}
+
+.date-switch-btn {
+  border: 1px solid #cbd9e6;
+  background: #ffffff;
+  color: #38536d;
+  border-radius: 9px;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.date-switch-btn:hover {
+  border-color: #1976a3;
+  background: #f3f9fd;
+}
+
+.date-switch-btn.active {
+  color: #ffffff;
+  border-color: #176b9c;
+  background: #176b9c;
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  order: 3;
+}
+
+.filter-controls select,
+.filter-controls input {
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #d5dfe8;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #1c2e42;
+  font-size: 14px;
+  outline: none;
+}
+
+.filter-controls select:focus,
+.filter-controls input:focus {
+  border-color: #16689c;
+  box-shadow: 0 0 0 3px rgba(22, 104, 156, 0.12);
+}
+
+.filter-controls input {
+  width: 240px;
+}
+
+.reset-filter-btn {
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #cbd9e6;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #38536d;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.reset-filter-btn:hover {
+  border-color: #16689c;
+  color: #16689c;
+  background-color: #f3f9fd;
+}
+
+/* 三張統計摘要卡 */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.kpi-card {
+  background: #ffffff;
+  border: 1px solid #dce4ec;
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(16, 42, 67, 0.03);
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: #6b7c8f;
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #162436;
+}
+
+/* 白色卡片容器 */
+.panel-card {
+  background: #ffffff;
+  border: 1px solid #dce4ec;
+  border-radius: 16px;
+  padding: 20px 20px 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 3px 12px rgba(16, 42, 67, 0.04);
+}
+
+.panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.panel-title {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #162436;
+}
+
+.panel-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7c8f;
+  line-height: 1.5;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 13px;
+  color: #52657a;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.prelim { background-color: #1976a3; }
+.dot.final  { background-color: #d97336; }
+.dot.rest   { background-color: #9aa5b1; }
+
+/* 直式時間軸：時間由上而下，同一時段賽事並列 */
+.vertical-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 0 4px 4px;
+}
+
+.timeline-date-divider {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 4px 0 14px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #e8f3fa;
+  color: #17618e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.timeline-time-group {
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 14px;
+  padding: 0 0 22px;
+}
+
+.timeline-time-group:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 75px;
+  top: 22px;
+  bottom: -1px;
+  width: 2px;
+  background: #e3edf5;
+}
+
+.timeline-time-label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #174e75;
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  padding-top: 13px;
+  white-space: nowrap;
+}
+
+.timeline-time-label::after {
+  content: "";
+  position: absolute;
+  right: -13px;
+  top: 18px;
+  width: 10px;
+  height: 10px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: #1976a3;
+  box-shadow: 0 0 0 1px #b8d2e5;
+}
+
+.timeline-match-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.timeline-match-card {
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid #dce7f0;
+  border-left: 4px solid #1976a3;
+  border-radius: 11px;
+  background: #fbfdff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  color: inherit;
+  font: inherit;
+}
+
+.timeline-match-card.final {
+  border-left-color: #d97336;
+}
+
+.timeline-match-card.rest {
+  border-left-color: #9aa5b1;
+}
+
+.timeline-match-card:hover,
+.timeline-match-card.selected {
+  border-color: #1976a3;
+  background: #f1f8fd;
+  transform: translateY(-1px);
+}
+
+.timeline-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 9px;
+}
+
+.timeline-stage-tag,
+.timeline-venue-tag,
+.timeline-time-range {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 5px;
+  padding: 3px 7px;
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.timeline-stage-tag {
+  color: #17618e;
+  background: #e8f3fa;
+}
+
+.timeline-match-card.final .timeline-stage-tag {
+  color: #a34b1e;
+  background: #fff0e7;
+}
+
+.timeline-venue-tag {
+  color: #586b7d;
+  background: #eef2f5;
+}
+
+.timeline-time-range {
+  color: #6b7c8f;
+  background: transparent;
+  padding-left: 2px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-match-teams {
+  color: #18334d;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.timeline-match-location {
+  margin-top: 5px;
+  color: #718195;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.timeline-empty {
+  padding: 28px 16px;
+  border: 1px dashed #cbd8e4;
+  border-radius: 10px;
+  color: #718195;
+  text-align: center;
+  background: #fbfdff;
+}
+
+/* 點擊賽事後展開的完整資訊卡 */
+.selected-detail {
+  display: none;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background-color: #f0f6fc;
+  border: 1px solid #b9d5ee;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.selected-detail.show {
+  display: flex;
+}
+
+.detail-meta {
+  font-size: 13px;
+  color: #3d5a78;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+
+.detail-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0d2847;
+  line-height: 1.4;
+}
+
+.detail-close {
+  border: 1px solid #9ec2e3;
+  background: #ffffff;
+  color: #1256a8;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.detail-close:hover {
+  background: #e3effa;
+}
+
+/* 完整賽程：原生 HTML 清單 */
+.schedule-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stage-group-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #16689c;
+  margin: 6px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.stage-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  padding: 12px 14px 12px 18px;
+  background-color: #fafcfe;
+  border: 1px solid #e2eaf1;
+  border-radius: 10px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.match-row:hover {
+  border-color: #1976a3;
+  background-color: #f5faff;
+}
+
+.match-row.selected {
+  border-color: #1976a3;
+  background-color: #f1f8fd;
+}
+
+.match-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  border-radius: 10px 0 0 10px;
+  background-color: #1976a3;
+}
+
+.match-row.final::before {
+  background-color: #d97336;
+}
+
+.match-row.rest::before {
+  background-color: #9aa5b1;
+}
+
+.match-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.badge-time {
+  background-color: #e8f2fa;
+  color: #0f4c75;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+.badge-venue {
+  background-color: #eef3f7;
+  color: #3d5166;
+  font-size: 13px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+.badge-location {
+  background-color: #e6f4f1;
+  color: #145c52;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+.badge-date {
+  font-size: 12px;
+  color: #6b7c8f;
+  white-space: nowrap;
+}
+
+.match-teams {
+  font-size: 15px;
+  font-weight: 700;
+  color: #162436;
+  line-height: 1.45;
+  word-break: break-word;
+  flex: 1;
+}
+
+.empty-schedule {
+  text-align: center;
+  padding: 36px 16px;
+  color: #6b7c8f;
+  font-size: 14px;
+}
+
+.empty-reset-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: 1px solid #16689c;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #16689c;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.empty-reset-btn:hover {
+  background: #eaf4fa;
+}
+
+.match-row:focus-visible,
+.timeline-match-card:focus-visible,
+.date-switch-btn:focus-visible,
+.reset-filter-btn:focus-visible {
+  outline: 3px solid rgba(25, 118, 163, 0.28);
+  outline-offset: 2px;
+}
+
+/* ================= 新分頁：大會資訊、手冊、邀請函與聯絡資訊 ================= */
+.handbook-box {
+  background-color: #f4f8fc;
+  border: 1px solid #d4e3f2;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.primary-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  background-color: #16689c;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px 22px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.primary-action-btn:hover {
+  background-color: #0f4c75;
+}
+
+.raw-link-box {
+  font-size: 13px;
+  color: #4a6078;
+  background-color: #ffffff;
+  border: 1px solid #dce4ec;
+  border-radius: 8px;
+  padding: 10px 14px;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.raw-link-box a {
+  color: #16689c;
+  text-decoration: underline;
+}
+
+/* 聯絡資訊區塊 */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.contact-item {
+  background-color: #fafcfe;
+  border: 1px solid #e2eaf1;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.contact-label {
+  font-size: 12px;
+  color: #6b7c8f;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.contact-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #162436;
+  word-break: break-all;
+}
+
+.contact-value a {
+  color: #16689c;
+  text-decoration: none;
+}
+
+.contact-value a:hover {
+  text-decoration: underline;
+}
+
+/* ================= 手機與平板響應式斷點 ================= */
+@media (max-width: 768px) {
+  .hero-banner {
+    padding: 22px 16px 24px;
+  }
+
+  .date-pill {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .main-nav-inner {
+    padding: 0 12px;
+  }
+
+  .page-tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 12px 10px;
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 14px 12px 0;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sport-tabs {
+    display: flex;
+    width: 100%;
+  }
+
+  .sport-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-controls select,
+  .filter-controls input,
+  .reset-filter-btn {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .kpi-card {
+    padding: 12px 10px;
+    text-align: center;
+  }
+
+  .kpi-value {
+    font-size: 19px;
+  }
+
+  .panel-card {
+    padding: 16px 14px 18px;
+    border-radius: 14px;
+  }
+
+  .detail-close {
+    width: 100%;
+    text-align: center;
+  }
+
+  .match-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 11px 12px 11px 16px;
+  }
+
+  .match-badges {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .badge-date {
+    margin-left: auto;
+  }
+
+  .match-teams {
+    font-size: 14px;
+  }
+
+  .primary-action-btn {
+    width: 100%;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .date-switch-btn {
+    flex: 1;
+    min-width: 96px;
+  }
+
+  .timeline-time-group {
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 10px;
+    padding-bottom: 18px;
+  }
+
+  .timeline-time-group:not(:last-child)::before {
+    left: 61px;
+  }
+
+  .timeline-time-label {
+    font-size: 13px;
+  }
+
+  .timeline-time-label::after {
+    right: -10px;
+    width: 8px;
+    height: 8px;
+  }
+
+  .timeline-match-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .timeline-match-card {
+    padding: 11px 12px;
+  }
+
+  .timeline-match-teams {
+    font-size: 14px;
+  }
 }
