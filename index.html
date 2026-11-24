@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>全育盃賽程查詢</title>
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
+  <title>全國教育盃賽程查詢</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     * {
       box-sizing: border-box;
@@ -72,11 +72,49 @@
       white-space: nowrap;
     }
 
+    /* 主分頁導覽列 */
+    .main-nav-bar {
+      background-color: #ffffff;
+      border-bottom: 1px solid #dce4ec;
+      box-shadow: 0 2px 6px rgba(16, 42, 67, 0.03);
+    }
+    .main-nav-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 8px;
+    }
+    .page-tab-btn {
+      border: none;
+      background: transparent;
+      color: #52657a;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 20px;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .page-tab-btn:hover {
+      color: #16689c;
+    }
+    .page-tab-btn.active {
+      color: #16689c;
+      border-bottom-color: #16689c;
+    }
+
     /* 主內容區 */
     .container {
       max-width: 1240px;
       margin: 0 auto;
       padding: 18px 20px 0;
+    }
+    .page-section {
+      display: none;
+    }
+    .page-section.active {
+      display: block;
     }
 
     /* 控制列 */
@@ -217,55 +255,7 @@
     .dot.final  { background-color: #d97336; }
     .dot.rest   { background-color: #9aa5b1; }
 
-    /* 時間軸左右滑動控制列 */
-    .timeline-scroll-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      padding: 6px 10px;
-      background-color: #f4f8fb;
-      border: 1px solid #e2eaf1;
-      border-radius: 9px;
-      font-size: 12px;
-      color: #4a6078;
-    }
-    .scroll-btns {
-      display: inline-flex;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-    .scroll-btn {
-      border: 1px solid #c5d6e6;
-      background-color: #ffffff;
-      color: #165b8c;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .scroll-btn:hover {
-      background-color: #e6f0f8;
-    }
-
-    /* 時間軸捲動容器 */
-    #timeline-canvas-holder {
-      width: 100%;
-      max-width: 100%;
-      overflow-x: auto;
-      overflow-y: visible;
-      -webkit-overflow-scrolling: touch;
-      touch-action: pan-x pan-y;
-      border-radius: 8px;
-      border: 1px solid #edf2f7;
-    }
-    #timeline-canvas-holder canvas {
-      display: block;
-    }
-
-    /* 點擊時間軸區塊後展開的完整資訊卡 */
+    /* 點擊賽事後展開的完整資訊卡 */
     .selected-detail {
       display: none;
       margin-top: 14px;
@@ -410,6 +400,51 @@
       font-size: 14px;
     }
 
+    /* ================= 新分頁：大會資訊、手冊、邀請函與聯絡資訊 ================= */
+    .handbook-box {
+      background-color: #f4f8fc;
+      border: 1px solid #d4e3f2;
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .primary-action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: fit-content;
+      background-color: #16689c;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 12px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .primary-action-btn:hover {
+      background-color: #0f4c75;
+    }
+    .raw-link-box {
+      font-size: 13px;
+      color: #4a6078;
+      background-color: #ffffff;
+      border: 1px solid #dce4ec;
+      border-radius: 8px;
+      padding: 10px 14px;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .raw-link-box a {
+      color: #16689c;
+      text-decoration: underline;
+    }
+
     /* 聯絡資訊區塊 */
     .contact-grid {
       display: grid;
@@ -444,6 +479,126 @@
     }
 
     /* ================= 手機與平板響應式斷點 ================= */
+    /* 直式時間軸：時間由上而下，同一時段賽事並列 */
+    .date-switcher {
+      display: flex;
+      flex: 1 0 100%;
+      order: 2;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 2px;
+    }
+    .filter-controls { order: 3; }
+    .date-switch-btn {
+      border: 1px solid #cbd9e6;
+      background: #fff;
+      color: #38536d;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+    .date-switch-btn:hover { border-color: #1976a3; background: #f3f9fd; }
+    .date-switch-btn.active { color: #fff; border-color: #176b9c; background: #176b9c; }
+    .vertical-timeline {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 4px 0 4px 4px;
+    }
+    .timeline-time-group {
+      position: relative;
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      gap: 14px;
+      padding: 0 0 22px;
+    }
+    .timeline-time-group:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      left: 75px;
+      top: 22px;
+      bottom: -1px;
+      width: 2px;
+      background: #e3edf5;
+    }
+    .timeline-time-label {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      color: #174e75;
+      font-size: 15px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      padding-top: 13px;
+      white-space: nowrap;
+    }
+    .timeline-time-label::after {
+      content: "";
+      position: absolute;
+      right: -13px;
+      top: 18px;
+      width: 10px;
+      height: 10px;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      background: #1976a3;
+      box-shadow: 0 0 0 1px #b8d2e5;
+    }
+    .timeline-match-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      min-width: 0;
+    }
+    .timeline-match-card {
+      min-width: 0;
+      padding: 13px 14px;
+      border: 1px solid #dce7f0;
+      border-left: 4px solid #1976a3;
+      border-radius: 11px;
+      background: #fbfdff;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, transform .15s ease;
+      color: inherit;
+      font: inherit;
+    }
+    .timeline-match-card.final { border-left-color: #d97336; }
+    .timeline-match-card.rest { border-left-color: #9aa5b1; }
+    .timeline-match-card:hover, .timeline-match-card.selected {
+      border-color: #1976a3;
+      background: #f1f8fd;
+      transform: translateY(-1px);
+    }
+    .timeline-card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 9px; }
+    .timeline-stage-tag, .timeline-venue-tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 5px;
+      padding: 3px 7px;
+      font-size: 11px;
+      line-height: 1.4;
+      font-weight: 700;
+    }
+    .timeline-stage-tag { color: #17618e; background: #e8f3fa; }
+    .timeline-match-card.final .timeline-stage-tag { color: #a34b1e; background: #fff0e7; }
+    .timeline-venue-tag { color: #586b7d; background: #eef2f5; }
+    .timeline-match-teams { color: #18334d; font-size: 15px; font-weight: 750; line-height: 1.55; overflow-wrap: anywhere; }
+    .timeline-match-location { margin-top: 5px; color: #718195; font-size: 12px; line-height: 1.45; }
+    .timeline-empty { padding: 28px 16px; border: 1px dashed #cbd8e4; border-radius: 10px; color: #718195; text-align: center; background: #fbfdff; }
+    .match-row { width: 100%; text-align: left; font: inherit; cursor: pointer; }
+    .match-row.selected { border-color: #1976a3; background: #f1f8fd; }
+    .match-row:focus-visible, .timeline-match-card:focus-visible, .date-switch-btn:focus-visible {
+      outline: 3px solid rgba(25, 118, 163, .28);
+      outline-offset: 2px;
+    }
+
     @media (max-width: 768px) {
       .hero-banner {
         padding: 22px 16px 24px;
@@ -451,6 +606,15 @@
       .date-pill {
         font-size: 12px;
         padding: 6px 12px;
+      }
+      .main-nav-inner {
+        padding: 0 12px;
+      }
+      .page-tab-btn {
+        flex: 1;
+        text-align: center;
+        padding: 12px 10px;
+        font-size: 14px;
       }
       .container {
         padding: 14px 12px 0;
@@ -512,10 +676,22 @@
       .match-teams {
         font-size: 14px;
       }
+      .primary-action-btn {
+        width: 100%;
+      }
       .contact-grid {
         grid-template-columns: 1fr;
         gap: 10px;
       }
+      .date-switch-btn { flex: 1; min-width: 100px; }
+      .timeline-time-group { grid-template-columns: 62px minmax(0, 1fr); gap: 10px; padding-bottom: 18px; }
+      .timeline-time-group:not(:last-child)::before { left: 61px; }
+      .timeline-time-label { font-size: 13px; }
+      .timeline-time-label::after { right: -10px; width: 8px; height: 8px; }
+      .timeline-match-grid { grid-template-columns: 1fr; gap: 8px; }
+      .timeline-match-card { padding: 11px 12px; }
+      .timeline-match-teams { font-size: 14px; }
+
     }
   </style>
 </head>
@@ -524,7 +700,7 @@
     <div class="hero-inner">
       <div>
         <div class="hero-kicker">TAMKANG UNIVERSITY · EDUCATION CUP</div>
-        <h1 class="hero-title">全育盃賽程查詢</h1>
+        <h1 class="hero-title">全國教育盃賽程查詢</h1>
         <p class="hero-subtitle">掌握每一場賽事，找到你想看的比賽。</p>
       </div>
       <div class="hero-badges">
@@ -533,117 +709,180 @@
     </div>
   </header>
 
+  <!-- 主分頁切換列 -->
+  <nav class="main-nav-bar" aria-label="主要功能分頁">
+    <div class="main-nav-inner">
+      <button type="button" class="page-tab-btn active" data-page="page-schedule">賽程查詢</button>
+      <button type="button" class="page-tab-btn" data-page="page-info">大會資訊與聯絡</button>
+    </div>
+  </nav>
+
   <main class="container">
-    <!-- 篩選列 -->
-    <section class="toolbar">
-      <div class="sport-tabs" id="sport-tabs">
-        <button type="button" class="sport-tab active" data-sport="籃球">籃球</button>
-        <button type="button" class="sport-tab" data-sport="排球">排球</button>
-        <button type="button" class="sport-tab" data-sport="羽球">羽球</button>
-      </div>
+    <!-- ==================== 分頁一：賽程查詢 ==================== -->
+    <div id="page-schedule" class="page-section active">
+      <!-- 篩選列 -->
+      <section class="toolbar">
+        <div class="sport-tabs" id="sport-tabs">
+          <button type="button" class="sport-tab active" data-sport="籃球">籃球</button>
+          <button type="button" class="sport-tab" data-sport="排球">排球</button>
+          <button type="button" class="sport-tab" data-sport="羽球">羽球</button>
+        </div>
 
-      <div class="filter-controls">
-        <select id="stage-select" aria-label="賽事階段篩選">
-          <option value="ALL">全部賽事階段</option>
-        </select>
-        <select id="venue-select" aria-label="場地篩選">
-          <option value="ALL">全部場地</option>
-        </select>
-        <input
-          type="text"
-          id="team-search"
-          placeholder="搜尋隊伍名稱..."
-          aria-label="搜尋隊伍名稱"
-        />
-      </div>
-    </section>
+        <div class="date-switcher" id="date-switcher" aria-label="選擇賽程日期"></div>
 
-    <!-- 三張摘要卡 -->
-    <section class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">目前項目</div>
-        <div class="kpi-value" id="kpi-sport">籃球</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">賽程筆數</div>
-        <div class="kpi-value" id="kpi-count">0</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">使用場地</div>
-        <div class="kpi-value" id="kpi-venues">0</div>
-      </div>
-    </section>
+        <div class="filter-controls">
+          <select id="stage-select" aria-label="賽事階段篩選">
+            <option value="ALL">全部賽事階段</option>
+          </select>
+          <select id="venue-select" aria-label="場地篩選">
+            <option value="ALL">全部場地</option>
+          </select>
+          <input
+            type="text"
+            id="team-search"
+            placeholder="搜尋隊伍名稱..."
+            aria-label="搜尋隊伍名稱"
+          />
+        </div>
+      </section>
 
-    <!-- 賽程時間軸（p5.js Canvas） -->
-    <section class="panel-card">
-      <div class="panel-header">
-        <div>
-          <h2 class="panel-title">賽程時間軸</h2>
-          <p class="panel-desc" id="timeline-location-desc">橫向為時間，縱向為場地；區塊採簡潔顯示，點擊區塊即可查看完整資訊。</p>
+      <!-- 三張摘要卡 -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">目前項目</div>
+          <div class="kpi-value" id="kpi-sport">籃球</div>
         </div>
-        <div class="legend">
-          <span class="legend-item"><i class="dot prelim"></i>預賽</span>
-          <span class="legend-item"><i class="dot final"></i>複賽 / 決賽</span>
-          <span class="legend-item"><i class="dot rest"></i>休息 / 待定</span>
+        <div class="kpi-card">
+          <div class="kpi-label">賽程筆數</div>
+          <div class="kpi-value" id="kpi-count">0</div>
         </div>
-      </div>
+        <div class="kpi-card">
+          <div class="kpi-label">使用場地</div>
+          <div class="kpi-value" id="kpi-venues">0</div>
+        </div>
+      </section>
 
-      <!-- 左右滑動提示與快捷按鈕 -->
-      <div class="timeline-scroll-bar">
-        <span>↔ 左右滑動查看完整時段（07:00 – 21:00）</span>
-        <div class="scroll-btns">
-          <button type="button" class="scroll-btn" id="scroll-left-btn">← 向左</button>
-          <button type="button" class="scroll-btn" id="scroll-right-btn">向右 →</button>
+      <!-- 賽程時間軸（p5.js Canvas） -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">賽程時間軸</h2>
+            <p class="panel-desc" id="timeline-location-desc">依比賽時間由上而下排列，同一時段的不同場地賽事會並列顯示。</p>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><i class="dot prelim"></i>預賽</span>
+            <span class="legend-item"><i class="dot final"></i>複賽 / 決賽</span>
+            <span class="legend-item"><i class="dot rest"></i>休息 / 待定</span>
+          </div>
         </div>
-      </div>
 
-      <div id="timeline-canvas-holder"></div>
+        <div id="vertical-timeline" class="vertical-timeline" aria-live="polite"></div>
 
-      <!-- 點擊後展開的完整資訊區 -->
-      <div class="selected-detail" id="selected-detail">
-        <div>
-          <div class="detail-meta" id="detail-meta"></div>
-          <div class="detail-title" id="detail-title"></div>
+        <!-- 點擊後展開的完整資訊區 -->
+        <div class="selected-detail" id="selected-detail">
+          <div>
+            <div class="detail-meta" id="detail-meta"></div>
+            <div class="detail-title" id="detail-title"></div>
+          </div>
+          <button type="button" class="detail-close" id="detail-close">收合詳情</button>
         </div>
-        <button type="button" class="detail-close" id="detail-close">收合詳情</button>
-      </div>
-    </section>
+      </section>
 
-    <!-- 完整賽程 -->
-    <section class="panel-card">
-      <div class="panel-header">
-        <div>
-          <h2 class="panel-title">完整賽程</h2>
-          <p class="panel-desc">依賽事階段與開賽時間排序，並標明各場次所在場地。</p>
+      <!-- 完整賽程 -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">完整賽程</h2>
+            <p class="panel-desc">依賽事階段與開賽時間排序，並標明各場次所在場地。</p>
+          </div>
+          <div class="panel-desc" id="list-counter">顯示 0 / 0 筆</div>
         </div>
-        <div class="panel-desc" id="list-counter">顯示 0 / 0 筆</div>
-      </div>
-      <div id="schedule-list" class="schedule-list-container"></div>
-    </section>
+        <div id="schedule-list" class="schedule-list-container"></div>
+      </section>
+    </div>
 
-    <!-- 聯絡資訊 -->
-    <section class="panel-card">
-      <div class="panel-header">
-        <div>
-          <h2 class="panel-title">聯絡資訊</h2>
-          <p class="panel-desc">如有賽程或相關疑問，歡迎聯繫大會負責人。</p>
+    <!-- ==================== 分頁二：大會資訊與聯絡 ==================== -->
+    <div id="page-info" class="page-section">
+      <!-- 1. 資訊手冊 -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">大會資訊手冊</h2>
+            <p class="panel-desc">點擊下方按鈕前往 Google Drive 檢視或下載完整競賽規程與資訊手冊。</p>
+          </div>
         </div>
-      </div>
-      <div class="contact-grid">
-        <div class="contact-item">
-          <div class="contact-label">活動總召集人</div>
-          <div class="contact-value">王家興</div>
+        <div class="handbook-box">
+          <a
+            href="https://drive.google.com/file/d/1-whnWqoMCR6x_RDda-XzZRjyMLZ8b6Z1/view?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="primary-action-btn"
+          >
+            開啟資訊手冊 ↗
+          </a>
+          <div class="raw-link-box">
+            <strong>資訊手冊連結：</strong>
+            <a
+              href="https://drive.google.com/file/d/1-whnWqoMCR6x_RDda-XzZRjyMLZ8b6Z1/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+            >https://drive.google.com/file/d/1-whnWqoMCR6x_RDda-XzZRjyMLZ8b6Z1/view?usp=sharing</a>
+          </div>
         </div>
-        <div class="contact-item">
-          <div class="contact-label">聯絡電話</div>
-          <div class="contact-value"><a href="tel:0962081791">0962-081-791</a></div>
+      </section>
+
+      <!-- 2. 大會貴賓邀請函 -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">大會貴賓邀請函</h2>
+            <p class="panel-desc">點擊下方按鈕前往 Google Drive 檢視或下載大會貴賓邀請函。</p>
+          </div>
         </div>
-        <div class="contact-item">
-          <div class="contact-label">聯絡信箱</div>
-          <div class="contact-value"><a href="mailto:2026educupintkuet@gmail.com">2026educupintkuet@gmail.com</a></div>
+        <div class="handbook-box">
+          <a
+            href="https://drive.google.com/file/d/14Xrkvct66nqzurlfRAHCgfYJc-IDWnf8/view?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="primary-action-btn"
+          >
+            開啟貴賓邀請函 ↗
+          </a>
+          <div class="raw-link-box">
+            <strong>貴賓邀請函連結：</strong>
+            <a
+              href="https://drive.google.com/file/d/14Xrkvct66nqzurlfRAHCgfYJc-IDWnf8/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+            >https://drive.google.com/file/d/14Xrkvct66nqzurlfRAHCgfYJc-IDWnf8/view?usp=sharing</a>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <!-- 3. 聯絡資訊 -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">聯絡資訊</h2>
+            <p class="panel-desc">如有賽程或相關疑問，歡迎聯繫大會負責人。</p>
+          </div>
+        </div>
+        <div class="contact-grid">
+          <div class="contact-item">
+            <div class="contact-label">活動總召集人</div>
+            <div class="contact-value">王家興</div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">聯絡電話</div>
+            <div class="contact-value"><a href="tel:0962081791">0962-081-791</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">聯絡信箱</div>
+            <div class="contact-value"><a href="mailto:2026educupintkuet@gmail.com">2026educupintkuet@gmail.com</a></div>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 
   <script src="scheduleData.js"></script>
